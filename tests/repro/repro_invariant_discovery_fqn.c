@@ -202,21 +202,14 @@ TEST(invariant_discovery_always_skip_dirs) {
         { "vendored",                1 }, /* GREEN */
         { ".qdrant_code_embeddings", 1 }, /* GREEN */
 
-        /* ── RED: NOT yet in ALWAYS_SKIP_DIRS ─────────────────────────── */
         /*
-         * .claude-worktrees is the gap documented in QUALITY_ANALYSIS gap #1.
-         * The ALWAYS_SKIP_DIRS array only contains ".claude" and ".worktrees"
-         * (two separate entries).  The compound name ".claude-worktrees" is
-         * absent, so cbm_discover() descends into it.
-         *
-         * expected_green == 0 → we EXPECT the canary to be found (bug present).
-         * The ASSERT_EQ at the end treats found-when-expected-found as a RED
-         * reproduction, not a test failure.
-         *
-         * WHY RED: src/discover/discover.c ALWAYS_SKIP_DIRS does not contain
-         * ".claude-worktrees".  Fix: add ".claude-worktrees" next to ".claude".
+         * .claude-worktrees was QUALITY_ANALYSIS gap #1 (a RED reproduction): the
+         * compound name was absent from ALWAYS_SKIP_DIRS, so cbm_discover()
+         * descended into it. It is now listed in src/discover/discover.c
+         * ALWAYS_SKIP_DIRS (next to ".claude"), so the canary is correctly skipped
+         * — the bug is fixed and this is now a GREEN guard against regressing it.
          */
-        { ".claude-worktrees",       0 }, /* RED — gap #1 */
+        { ".claude-worktrees",       1 }, /* GREEN — gap #1 fixed */
     };
 
     int n = (int)(sizeof(cases) / sizeof(cases[0]));
